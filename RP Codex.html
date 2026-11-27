@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="pt-BR"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>RP Codex</title>
+<style>
+:root{--bg:#faf8f5;--fg:#241f2b;--mut:#6b6577;--card:#fff;--line:#e2dfe8;--ac:#6d28d9;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#15131a;--fg:#ece8f4;--mut:#a39cb3;--card:#1f1c27;--line:#332f3f;--ac:#a78bfa}}
+:root[data-theme="dark"]{--bg:#15131a;--fg:#ece8f4;--mut:#a39cb3;--card:#1f1c27;--line:#332f3f;--ac:#a78bfa}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+#app{max-width:960px;margin:0 auto;padding:16px 14px 60px}
+.wn{width:100%;font:700 1.7rem Georgia,serif;background:transparent;border:0;border-bottom:2px dashed var(--line);color:var(--fg);padding:4px 0;margin-bottom:4px}
+.hint{color:var(--mut);font-size:.85rem;margin:0 0 12px}
+.tabs{display:flex;gap:8px;overflow-x:auto;padding:8px 0;position:sticky;top:env(safe-area-inset-top,0px);background:var(--bg);z-index:5}
+.tab{flex:none;border:2px solid var(--tc);color:var(--tc);background:var(--bg);border-radius:99px;padding:6px 12px;font:600 .85rem system-ui;cursor:pointer}
+.tab.on{background:var(--tc);color:#fff}
+.tab small{opacity:.8;margin-left:4px}
+.bar{display:flex;gap:8px;margin:12px 0;flex-wrap:wrap}
+.bar select{width:auto;flex:1 1 150px}
+input,select,textarea{font:inherit;color:var(--fg);background:var(--card);border:1px solid var(--line);border-radius:10px;padding:8px 10px;width:100%}
+textarea{min-height:90px;resize:vertical}
+.btn{border:1px solid var(--line);background:var(--card);color:var(--fg);border-radius:10px;padding:8px 14px;font:600 .9rem system-ui;cursor:pointer}
+.btn.pri{background:var(--tc);border-color:var(--tc);color:#fff}
+.btn.dng{color:#c2255c;border-color:#c2255c}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:10px}
+.cd{display:flex;gap:10px;align-items:center;text-align:left;background:var(--card);border:1px solid var(--line);border-left:6px solid var(--tc);border-radius:12px;padding:10px 12px;cursor:pointer;color:var(--fg);font:inherit}
+.cd b{display:block}.sm{color:var(--mut);font-size:.85rem}
+.th{width:46px;height:46px;border-radius:50%;object-fit:cover;flex:none}
+.pic{width:160px;max-width:100%;border-radius:14px;margin:10px 0;display:block}
+.empty{color:var(--mut);padding:30px 0;text-align:center}
+.box{background:var(--card);border:1px solid var(--line);border-top:6px solid var(--tc);border-radius:14px;padding:14px 16px}
+h2{margin:0 0 6px;font:700 1.5rem Georgia,serif;color:var(--tc)}
+.fl{margin:12px 0 2px;font-weight:700;color:var(--tc);font-size:.85rem;text-transform:uppercase;letter-spacing:.04em}
+.tx{white-space:pre-wrap;margin:0}
+.chip{display:inline-block;margin:3px 6px 3px 0;border:1px solid var(--tc);color:var(--tc);background:transparent;border-radius:99px;padding:3px 11px;font:600 .85rem system-ui;cursor:pointer}
+.gi{display:block;margin:6px 0;border:2px solid var(--line);background:var(--bg);color:var(--fg);border-radius:10px;padding:8px 12px;font:inherit;text-align:left;width:100%;cursor:pointer}
+.gi.s{display:inline-block;width:auto;margin:3px 6px 3px 0;padding:4px 12px}
+.gi.sel{border-color:var(--tc);background:var(--tc);color:#fff}
+.chks{max-height:150px;overflow:auto;border:1px solid var(--line);border-radius:10px;padding:6px 10px;background:var(--card)}
+.chks label{display:block;font-size:.95rem}.chks input{width:auto;margin-right:6px}
+.row{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+.foot{margin-top:30px;padding-top:14px;border-top:1px solid var(--line)}
+.err{color:#c2255c;font-size:.9rem}
+svg.g{width:100%;height:auto;background:var(--bg);border:1px solid var(--line);border-radius:12px}
+.lg{display:flex;gap:12px;flex-wrap:wrap;font-size:.8rem;margin:8px 0}.lg i{display:inline-block;width:14px;height:4px;margin-right:4px;vertical-align:middle}
+details{margin-top:12px}summary{cursor:pointer;font-weight:600}
+</style></head><body><div id="app"></div>
+<script>
+var OP="Aliado,Inimigo,Família,Mestre/Discípulo,Amor,Rival,Outro";
+var RC={"Aliado":"#1a9d4b","Inimigo":"#d0312d","Família":"#e07b00","Mestre/Discípulo":"#7c3aed","Amor":"#e0409a","Rival":"#c99700","Outro":"#888"};
+var IMG=["img","Imagem","i"];
+var T=[
+{k:"hist",n:"História",h:265,s:"ordem",f:[["titulo","Título","t"],["periodo","Época / período","t"],["ordem","Ordem cronológica (número)","n"],["texto","Relato","a"],["pers","Personagens envolvidos","m:char"],["cids","Cidades envolvidas","m:city"],["nacs","Nações envolvidas","m:nation"]]},
+{k:"char",n:"Personagens",h:330,f:[["nome","Nome","t"],IMG,["apelido","Apelido / título","t"],["raca","Raça","s:race"],["classe","Classificação","s:class"],["poder","Escala de poder","s:power"],["grupos","Grupos e organizações","m:group"],["armas","Armas e equipamentos","m:weapon"],["cidade","Cidade","s:city"],["nacao","Nação","s:nation"],["idade","Idade","t"],["status","Status (vivo, morto…)","t"],["aparencia","Aparência","a"],["personalidade","Personalidade","a"],["historia","História pessoal","a"],["habilidades","Habilidades e poderes","a"],["notas","Notas","a"]]},
+{k:"race",n:"Raças",h:150,f:[["nome","Nome","t"],IMG,["descricao","Descrição","a"],["origem","Origem","s:city"],["vida","Expectativa de vida","t"],["habilidades","Habilidades","a"],["fraquezas","Fraquezas","a"],["notas","Notas","a"]]},
+{k:"class",n:"Classificações",h:30,f:[["nome","Nome","t"],["categoria","Categoria (rank, classe, título…)","t"],["descricao","Descrição","a"],["requisitos","Requisitos","a"]]},
+{k:"group",n:"Grupos e Organizações",h:200,f:[["nome","Nome","t"],IMG,["tipo","Tipo (guilda, clã, exército…)","t"],["lider","Líder","s:char"],["sede","Sede","s:city"],["nacao","Nação","s:nation"],["objetivo","Objetivo","a"],["descricao","Descrição","a"],["relacoes","Aliados e inimigos","a"]]},
+{k:"power",n:"Escalas de Poder",h:0,s:"nivel",f:[["nome","Nome do nível","t"],["nivel","Nível (número, para ordenar)","n"],["descricao","Descrição","a"],["exemplos","Exemplos e limites","a"]]},
+{k:"weapon",n:"Armas e Itens",h:20,s:"nivel",f:[["nome","Nome","t"],IMG,["tipo","Tipo (espada, arco…)","t"],["raridade","Raridade","o:Comum,Incomum,Raro,Épico,Lendário"],["nivel","Poder (número)","n"],["material","Material","t"],["efeito","Efeito / habilidade","a"],["origem","Origem","s:city"],["notas","Notas","a"]]},
+{k:"city",n:"Cidades e Vilas",h:50,f:[["nome","Nome","t"],IMG,["nacao","Nação","s:nation"],["regiao","Região / clima","t"],["pop","População","t"],["descricao","Descrição","a"],["locais","Locais importantes","a"]]},
+{k:"nation",n:"Nações",h:240,f:[["nome","Nome","t"],IMG,["capital","Capital","s:city"],["governante","Governante","s:char"],["governo","Governo","t"],["descricao","Descrição","a"],["relacoes","Aliados e rivais","a"],["economia","Economia e recursos","a"]]},
+{k:"rel",n:"Relações",h:300,f:[["de","De","s:char"],["tipo","Tipo","o:"+OP],["para","Para","s:char"],["nota","Nota","a"]]}
+];
+var TL=[{k:"graph",n:"🕸 Mapa de Relações",h:280},{k:"gen",n:"🎲 Geradores",h:170}];
+var TK={};T.forEach(function(t){TK[t.k]=t});
+var S=null;try{S=JSON.parse(localStorage.getItem("rpcodex")||"null")}catch(e){}
+if(!S||typeof S!=="object")S={};T.forEach(function(t){if(!Array.isArray(S[t.k]))S[t.k]=[]});
+var saveErr=false;
+function save(){try{localStorage.setItem("rpcodex",JSON.stringify(S));saveErr=false}catch(e){saveErr=true}}
+var V={t:"char",mode:"list",id:null,q:"",focus:""},H=[],armed="";
+function $(id){return document.getElementById(id)}
+function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,6)}
+function h(tag,a,c){var e=document.createElement(tag);a=a||{};for(var k in a){var v=a[k];if(k==="class")e.className=v;else if(k==="text")e.textContent=v;else if(k.indexOf("on")===0)e[k]=v;else if(k==="value")e.value=v;else e.setAttribute(k,v)}[].concat(c||[]).forEach(function(x){if(x==null)return;e.appendChild(typeof x==="string"?document.createTextNode(x):x)});return e}
+function nm(r,t){if(t.k==="rel"){var a=find("char",r.de),b=find("char",r.para);return (a?nm(a,TK.char):"?")+" → "+(b?nm(b,TK.char):"?")+" ("+(r.tipo||"—")+")"}var v=r[t.f[0][0]];return (v==null?"":String(v)).trim()||"(sem nome)"}
+function find(k,id){return S[k].filter(function(r){return r.id===id})[0]}
+function col(t){return "hsl("+t.h+" 65% 50%)"}
+function themed(e,t){e.setAttribute("style","--tc:"+col(t));return e}
+function imgOf(r,t){return t.f.some(function(f){return f[2]==="i"})?r.img:""}
+function go(o){H.push(JSON.parse(JSON.stringify(V)));V=o;render();window.scrollTo(0,0)}
+function back(){V=H.pop()||{t:V.t,mode:"list",id:null,q:"",focus:""};render();window.scrollTo(0,0)}
+function sorted(t,arr){return arr.slice().sort(function(a,b){if(t.s)return (Number(a[t.s])||0)-(Number(b[t.s])||0);return nm(a,t).localeCompare(nm(b,t),"pt-BR")})}
+function render(){var t=TK[V.t]||TL.filter(function(x){return x.k===V.t})[0],r=$("app");r.textContent="";
+ r.appendChild(h("input",{class:"wn",value:S._w||"Meu Mundo de RP",placeholder:"Nome do seu mundo",oninput:function(){S._w=this.value;save()}}));
+ r.appendChild(h("p",{class:saveErr?"err":"hint",text:saveErr?"Sem espaço para salvar! Exporte um backup e use imagens menores.":"Tudo fica salvo neste navegador. Use Exportar para guardar um backup."}));
+ var tb=h("div",{class:"tabs"});T.concat(TL).forEach(function(x){var b=h("button",{class:"tab"+(x.k===V.t?" on":""),onclick:function(){H=[];V={t:x.k,mode:"list",id:null,q:"",focus:""};render()}},[x.n,TK[x.k]?h("small",{text:String(S[x.k].length)}):null]);themed(b,x);tb.appendChild(b)});r.appendChild(tb);
+ var m=h("div");themed(m,t);m.appendChild(V.t==="graph"?graphView():V.t==="gen"?genView():V.mode==="list"?list(t):V.mode==="view"?view(t):form(t));r.appendChild(m);r.appendChild(foot())}
+function summary(r,t){var out=[];t.f.slice(1).forEach(function(f){if(out.length>=2)return;var v=r[f[0]],k=f[2];if(!v||k==="a"||k==="i"||Array.isArray(v)&&!v.length)return;if(k.indexOf("s:")===0){var x=find(k.slice(2),v);if(x)out.push(nm(x,TK[k.slice(2)]))}else if(k.indexOf("m:")===0){out.push(v.length+" "+TK[k.slice(2)].n.toLowerCase())}else out.push(String(v))});return out.join(" · ")}
+function list(t){var w=h("div"),cc=h("div",{class:"grid"});
+ function fill(){cc.textContent="";var q=V.q.toLowerCase(),rs=sorted(t,S[t.k]).filter(function(r){return !q||(nm(r,t)+JSON.stringify(r)).toLowerCase().indexOf(q)>-1});
+  if(!rs.length){cc.className="";cc.appendChild(h("div",{class:"empty",text:S[t.k].length?"Nada encontrado.":"Nada em "+t.n+" ainda. Clique em Novo ou use os Geradores."}));return}
+  cc.className="grid";rs.forEach(function(r){var im=imgOf(r,t);cc.appendChild(themed(h("button",{class:"cd",onclick:function(){go({t:t.k,mode:"view",id:r.id,q:"",focus:""})}},[im?h("img",{class:"th",src:im,alt:""}):null,h("div",{},[h("b",{text:nm(r,t)}),h("span",{class:"sm",text:summary(r,t)})])]),t))})}
+ w.appendChild(h("div",{class:"bar"},[h("input",{placeholder:"Buscar em "+t.n+"…",value:V.q,oninput:function(){V.q=this.value;fill()},style:"flex:1 1 200px"}),h("button",{class:"btn pri",onclick:function(){go({t:t.k,mode:"form",id:null,q:"",focus:""})}},"+ Novo")]));
+ w.appendChild(cc);fill();return w}
+function chip(k,id){var x=find(k,id);if(!x)return null;var t=TK[k];return themed(h("button",{class:"chip",onclick:function(){go({t:k,mode:"view",id:id,q:"",focus:""})}},nm(x,t)),t)}
+function view(t){var r=find(t.k,V.id);if(!r){V.mode="list";return list(t)}
+ var b=h("div",{class:"box"});
+ b.appendChild(h("button",{class:"btn",onclick:back},"← Voltar"));
+ b.appendChild(h("h2",{text:nm(r,t)}));
+ if(imgOf(r,t))b.appendChild(h("img",{class:"pic",src:r.img,alt:""}));
+ if(t.k==="char")b.appendChild(h("button",{class:"btn",onclick:function(){H=[];V={t:"graph",mode:"list",id:null,q:"",focus:r.id};render()}},"🕸 Ver relações"));
+ t.f.slice(1).forEach(function(f){var v=r[f[0]],k=f[2];if(k==="i"||v==null||v===""||Array.isArray(v)&&!v.length)return;b.appendChild(h("div",{class:"fl",text:f[1]}));
+  if(k.indexOf("s:")===0)b.appendChild(chip(k.slice(2),v)||h("p",{class:"tx",text:"(removido)"}));
+  else if(k.indexOf("m:")===0){var d=h("div");v.forEach(function(id){var c=chip(k.slice(2),id);if(c)d.appendChild(c)});b.appendChild(d)}
+  else b.appendChild(h("p",{class:"tx",text:String(v)}))});
+ var refs={};T.forEach(function(t2){S[t2.k].forEach(function(r2){if(t2.k===t.k&&r2.id===r.id)return;t2.f.forEach(function(f){var k=f[2];if((k==="s:"+t.k&&r2[f[0]]===r.id)||(k==="m:"+t.k&&Array.isArray(r2[f[0]])&&r2[f[0]].indexOf(r.id)>-1)){(refs[t2.k]=refs[t2.k]||[]).push([r2,f[1]])}})})});
+ Object.keys(refs).forEach(function(k){b.appendChild(h("div",{class:"fl",text:"Aparece em: "+TK[k].n}));var d=h("div");refs[k].forEach(function(p){var c=chip(k,p[0].id);if(c){c.title=p[1];d.appendChild(c)}});b.appendChild(d)});
+ var del=h("button",{class:"btn dng",onclick:function(){if(armed!==r.id){armed=r.id;del.textContent="Confirmar exclusão";return}armed="";remove(t,r.id);back()}},"Excluir");
+ b.appendChild(h("div",{class:"row"},[h("button",{class:"btn pri",onclick:function(){go({t:t.k,mode:"form",id:r.id,q:"",focus:""})}},"Editar"),del]));return b}
+function remove(t,id){S[t.k]=S[t.k].filter(function(r){return r.id!==id});T.forEach(function(t2){S[t2.k].forEach(function(r){t2.f.forEach(function(f){if(f[2]==="s:"+t.k&&r[f[0]]===id)r[f[0]]="";if(f[2]==="m:"+t.k&&Array.isArray(r[f[0]]))r[f[0]]=r[f[0]].filter(function(x){return x!==id})})})});S.rel=S.rel.filter(function(r){return r.de&&r.para});H=H.filter(function(s){return s.id!==id});save()}
+function readImg(file,cb){var fr=new FileReader();fr.onload=function(){var im=new Image();im.onload=function(){var s=Math.min(1,360/Math.max(im.width,im.height)),c=document.createElement("canvas");c.width=Math.max(1,Math.round(im.width*s));c.height=Math.max(1,Math.round(im.height*s));var x=c.getContext("2d");x.fillStyle="#fff";x.fillRect(0,0,c.width,c.height);x.drawImage(im,0,0,c.width,c.height);cb(c.toDataURL("image/jpeg",.8))};im.onerror=function(){cb("")};im.src=fr.result};fr.readAsDataURL(file)}
+function form(t){var r=V.id?find(t.k,V.id):null,get={},b=h("div",{class:"box"}),err=h("div",{class:"err"});r=r||{};
+ b.appendChild(h("h2",{text:(V.id?"Editar ":"Novo em ")+t.n}));
+ t.f.forEach(function(f){var k=f[2],key=f[0],el;b.appendChild(h("div",{class:"fl",text:f[1]}));
+  if(k==="a"){el=h("textarea");el.value=r[key]||"";get[key]=function(){return el.value}}
+  else if(k==="i"){var cur=r[key]||"",pv=h("img",{class:"pic",alt:"",style:cur?"":"display:none"});if(cur)pv.src=cur;var fi=h("input",{type:"file",accept:"image/*",onchange:function(){if(fi.files[0])readImg(fi.files[0],function(d){cur=d;if(d){pv.src=d;pv.style.display="block"}})}}),rm=h("button",{class:"btn",onclick:function(){cur="";pv.style.display="none";fi.value=""}},"Remover imagem");el=h("div",{},[pv,fi,rm]);get[key]=function(){return cur}}
+  else if(k.indexOf("s:")===0){var tt=TK[k.slice(2)];el=h("select",{},[h("option",{value:""},"— nenhum —")].concat(sorted(tt,S[tt.k]).map(function(x){return h("option",{value:x.id},nm(x,tt))})));el.value=r[key]||"";get[key]=function(){return el.value}}
+  else if(k.indexOf("o:")===0){el=h("select",{},[h("option",{value:""},"— escolha —")].concat(k.slice(2).split(",").map(function(x){return h("option",{value:x},x)})));el.value=r[key]||"";get[key]=function(){return el.value}}
+  else if(k.indexOf("m:")===0){var t3=TK[k.slice(2)],cs=[],sel=r[key]||[];el=h("div",{class:"chks"});if(!S[t3.k].length)el.appendChild(h("span",{class:"sm",text:"Cadastre itens em "+t3.n+" primeiro."}));sorted(t3,S[t3.k]).forEach(function(x){var c=h("input",{type:"checkbox",value:x.id});c.checked=sel.indexOf(x.id)>-1;cs.push(c);el.appendChild(h("label",{},[c,nm(x,t3)]))});get[key]=function(){return cs.filter(function(c){return c.checked}).map(function(c){return c.value})}}
+  else{el=h("input",{type:k==="n"?"number":"text",step:"any"});el.value=r[key]==null?"":r[key];get[key]=function(){return k==="n"&&el.value!==""?Number(el.value):el.value}}
+  b.appendChild(el)});
+ b.appendChild(err);
+ b.appendChild(h("div",{class:"row"},[h("button",{class:"btn pri",onclick:function(){var o={};t.f.forEach(function(f){o[f[0]]=get[f[0]]()});if(!String(o[t.f[0][0]]||"").trim()){err.textContent="Preencha o primeiro campo ("+t.f[0][1]+").";return}
+  if(V.id){Object.assign(find(t.k,V.id),o)}else{o.id=uid();S[t.k].push(o);V.id=o.id}
+  save();V.mode="view";H=H.filter(function(s){return s.mode!=="form"});render();window.scrollTo(0,0)}},"Salvar"),h("button",{class:"btn",onclick:back},"Cancelar")]));return b}
+/* ---------- Mapa de relações ---------- */
+function sv(tag,a,txt){var e=document.createElementNS("http://www.w3.org/2000/svg",tag);for(var k in a)e.setAttribute(k,a[k]);if(txt!=null)e.textContent=txt;return e}
+function graphView(){var w=h("div",{class:"box"}),rels=S.rel.filter(function(r){return find("char",r.de)&&find("char",r.para)});
+ w.appendChild(h("h2",{text:"Mapa de Relações"}));
+ var ids=[];rels.forEach(function(r){[r.de,r.para].forEach(function(i){if(ids.indexOf(i)<0)ids.push(i)})});
+ var so=h("select",{},[h("option",{value:""},"Todos os personagens com relações")].concat(sorted(TK.char,ids.map(function(i){return find("char",i)})).map(function(c){return h("option",{value:c.id},"Foco: "+nm(c,TK.char))})));so.value=V.focus&&ids.indexOf(V.focus)>-1?V.focus:"";so.onchange=function(){V.focus=so.value;render()};
+ w.appendChild(h("div",{class:"bar"},[so,h("button",{class:"btn pri",onclick:function(){go({t:"rel",mode:"form",id:null,q:"",focus:""})}},"+ Nova relação"),V.focus&&find("char",V.focus)?h("button",{class:"btn",onclick:function(){go({t:"char",mode:"view",id:V.focus,q:"",focus:""})}},"Abrir ficha"):null]));
+ if(!rels.length){w.appendChild(h("div",{class:"empty",text:"Cadastre relações entre personagens (aba Relações) para ver o mapa."}));return w}
+ var foc=so.value,nodes=ids;if(foc){nodes=[foc];rels.forEach(function(r){if(r.de===foc&&nodes.indexOf(r.para)<0)nodes.push(r.para);if(r.para===foc&&nodes.indexOf(r.de)<0)nodes.push(r.de)})}
+ var P={},n=nodes.length,cx=360,cy=280,R=n>14?235:210;
+ nodes.forEach(function(id,i){if(foc&&i===0){P[id]=[cx,cy];return}var m=foc?n-1:n,j=foc?i-1:i,a=2*Math.PI*j/Math.max(1,m)-Math.PI/2;P[id]=[cx+R*Math.cos(a),cy+R*Math.sin(a)*0.86]});
+ var s=sv("svg",{class:"g",viewBox:"0 0 720 560"});
+ rels.forEach(function(r){if(!P[r.de]||!P[r.para])return;var a=P[r.de],b=P[r.para],c=RC[r.tipo]||"#888",l=sv("line",{x1:a[0],y1:a[1],x2:b[0],y2:b[1],stroke:c,"stroke-width":3,"stroke-opacity":.8});l.appendChild(sv("title",{},nm(r,TK.rel)+(r.nota?": "+r.nota:"")));s.appendChild(l);if(n<=14)s.appendChild(sv("text",{x:(a[0]+b[0])/2,y:(a[1]+b[1])/2,"font-size":11,"text-anchor":"middle",style:"fill:var(--mut);paint-order:stroke;stroke:var(--bg);stroke-width:3px"},r.tipo))});
+ nodes.forEach(function(id){var c=find("char",id),p=P[id],g=sv("g",{style:"cursor:pointer"});g.onclick=function(){V.focus=id;render()};g.appendChild(sv("circle",{cx:p[0],cy:p[1],r:id===foc?32:24,fill:id===foc?"hsl(330 65% 50%)":"hsl(265 55% 50%)",stroke:"#fff","stroke-width":2}));g.appendChild(sv("text",{x:p[0],y:p[1]+5,"text-anchor":"middle","font-size":id===foc?16:13,fill:"#fff","font-weight":700},nm(c,TK.char).slice(0,2).toUpperCase()));g.appendChild(sv("text",{x:p[0],y:p[1]+(id===foc?48:40),"text-anchor":"middle","font-size":12,style:"fill:var(--fg);paint-order:stroke;stroke:var(--bg);stroke-width:3px"},nm(c,TK.char).slice(0,16)));s.appendChild(g)});
+ w.appendChild(s);var lg=h("div",{class:"lg"});Object.keys(RC).forEach(function(k){lg.appendChild(h("span",{},[h("i",{style:"background:"+RC[k]}),k]))});w.appendChild(lg);
+ w.appendChild(h("p",{class:"hint",text:"Clique em um personagem para focar nele. Passe o mouse sobre uma linha para ver a nota."}));return w}
+/* ---------- Geradores ---------- */
+function W(s){return s.split(" ")}
+var N={
+pt:{n:"Português",m:W("João Pedro Lucas Rafael Tiago Gabriel Mateus Caio Bruno Henrique Diego Davi"),f:W("Maria Ana Beatriz Júlia Camila Larissa Luiza Helena Isabela Carolina Fernanda Marina"),s:W("Silva Souza Oliveira Santos Ferreira Almeida Costa Pereira Ribeiro Carvalho Moreira Barbosa")},
+en:{n:"Inglês",m:W("James Oliver Henry Edmund Arthur Thomas William Edward Alfred Hugh Walter Roland"),f:W("Emma Charlotte Eleanor Alice Margaret Beatrice Matilda Eliza Rose Agnes Clara Violet"),s:W("Smith Hart Blackwood Ashford Thorne Wright Fletcher Hawkins Mason Stone Carter Holloway")},
+es:{n:"Espanhol",m:W("Mateo Santiago Diego Alonso Javier Rodrigo Hernán Pablo Álvaro Emilio Gael Ramón"),f:W("Sofía Valentina Isabel Camila Lucía Carmen Elena Marisol Inés Paloma Rocío Catalina"),s:W("García Martínez López Hernández Vargas Castillo Ortega Navarro Romero Cabrera Fuentes Salazar")},
+fr:{n:"Francês",m:W("Louis Gabriel Étienne Henri Lucien Théo Raphaël Arnaud Baptiste Cédric Émile Julien"),f:W("Camille Éloïse Margaux Adèle Sophie Colette Margot Inès Manon Odette Solène Juliette"),s:W("Dubois Lefèvre Moreau Laurent Fournier Girard Lambert Bonnet Rousseau Marchand Perrin Delacroix")},
+de:{n:"Alemão",m:W("Lukas Friedrich Matthias Konrad Anton Felix Gerhard Johann Klaus Otto Stefan Wilhelm"),f:W("Anna Greta Lena Mathilde Sabine Ingrid Frieda Helga Klara Liesel Marlene Ursula"),s:W("Müller Schneider Fischer Weber Wagner Becker Hoffmann Koch Richter Wolf Schäfer Krüger")},
+it:{n:"Italiano",m:W("Marco Luca Alessandro Matteo Lorenzo Giovanni Dario Enzo Fabio Leonardo Rocco Sandro"),f:W("Giulia Chiara Francesca Elisa Alessia Bianca Serena Lucia Rosa Silvia Aurora Gemma"),s:W("Rossi Ferrari Esposito Romano Greco Conti Moretti Bianchi Marino Galli Ricci Fontana")},
+ja:{n:"Japonês (sobrenome primeiro)",r:1,m:W("Haruto Ren Kenji Takeshi Daichi Hiroshi Ryu Sora Akira Kaito Shin Taro"),f:W("Sakura Yuki Hana Aoi Mei Rin Akari Himari Kaede Mio Noriko Emi"),s:W("Tanaka Sato Suzuki Takahashi Watanabe Yamamoto Nakamura Kobayashi Ito Kato Mori Hayashi")},
+ru:{n:"Russo",m:W("Ivan Dmitri Alexei Nikolai Sergei Mikhail Boris Vladimir Pavel Andrei Yuri Anton"),f:W("Anastasia Natalia Olga Svetlana Irina Katya Tatiana Mila Vera Elena Daria Zoya"),s:W("Ivanov Petrov Volkov Sokolov Morozov Kuznetsov Orlov Smirnov Popov Lebedev Zaitsev Romanov")},
+ar:{n:"Árabe",m:W("Omar Khalid Yusuf Tariq Hamza Rashid Idris Samir Karim Nabil Faisal Zayd"),f:W("Layla Amira Yasmin Zahra Samira Nadia Farah Salma Mariam Aisha Dalia Rania"),s:W("Al-Farsi Al-Hakim Ibn-Rashid Al-Mansur Haddad Nasser Al-Zahrani Khoury Saleh Mahfouz Al-Sayed Qasim")},
+no:{n:"Nórdico",m:W("Bjorn Ragnar Eirik Leif Sigurd Thorin Ivar Harald Gunnar Ulf Olaf Torvald"),f:W("Astrid Freya Sigrid Ingrid Helga Ylva Brynhild Runa Thyra Solveig Gudrun Hild"),s:W("Eriksson Haraldsen Bjornsson Ironside Bloodaxe Stormborn Ravenson Frostbeard Oakenshield Hammerfist Sigurdsson Ulfsdottir")},
+gr:{n:"Grego",m:W("Alexandros Leonidas Theron Dimitri Nikos Stavros Kostas Aristo Demos Lykos Orion Pavlos"),f:W("Athena Daphne Eleni Calista Ianthe Melina Phoebe Selene Thalia Zoe Ariadne Cassandra"),s:W("Papadakis Georgiou Nikolaou Antoniou Kyriakos Dimitriou Stavrou Vasilakis Karras Alexiou Pappas Makris")},
+la:{n:"Romano (latim)",m:W("Marcus Lucius Gaius Titus Quintus Decimus Publius Aulus Cassius Gnaeus Servius Tiberius"),f:W("Julia Livia Claudia Valeria Octavia Cornelia Flavia Aurelia Sabina Lucilla Marcella Antonia"),s:W("Aurelius Cassius Flavius Valerius Corvus Maximus Severus Metellus Scipio Crassus Lepidus Vitellius")},
+ce:{n:"Celta / Irlandês",m:W("Cian Declan Fionn Oisin Eoghan Brennan Conall Diarmuid Lorcan Niall Padraig Ronan"),f:W("Aoife Siobhan Niamh Saoirse Maeve Brigid Eithne Fiadh Grainne Orla Roisin Sinead"),s:W("O'Connor Murphy MacLeod Kavanagh Fitzgerald Gallagher MacBride Doyle O'Neill Byrne Quinn Brannigan")}
+};
+var Y={
+elf:{n:"Élfico (fantasia)",a:W("Ae El Ith Lor Sil Fae Thal Cael Ela Mir Nae Vael"),b:W("ra the li vi lan sa ri ni ae lo"),c:W("riel wen thir las dil nor ian eth iel dor")},
+dwa:{n:"Anão (fantasia)",a:W("Dur Khaz Thor Bal Grim Bor Dwal Kil Gim Rok Bru Tor"),b:W("in ak um or ur ok ar im"),c:W("dak gar rin thrain din ok mund bek grim li")},
+orc:{n:"Orc (fantasia)",a:W("Gro Mug Zug Kra Gor Urz Naz Lug Shar Bol Dro Ghaz"),b:W("ak um ul og ur az ru"),c:W("gash nak bag lurz ghul mok rak dush zog thar")},
+drk:{n:"Sombrio / Demoníaco (fantasia)",a:W("Mor Vex Zal Nyx Kael Azr Mal Sev Xan Drax Vor Ner"),b:W("a ev ul ar ix os en"),c:W("thos ryn zul gath mir kai dris vex lor oth")},
+dra:{n:"Dracônico (fantasia)",a:W("Vy Zar Drak Ky Sar Ign Ty Bha Rax Ur Sha Orm"),b:W("ra ky zo ma ve ni th"),c:W("thax goth ryss mor zeth kar dax ion yth")}
+};
+function pick(a){return a[Math.floor(Math.random()*a.length)]}
+function cap(s){return s.charAt(0).toUpperCase()+s.slice(1)}
+function genName(L,sx){if(N[L]){var d=N[L],g=sx==="x"?(Math.random()<.5?"m":"f"):sx,f=pick(d[g]),s=pick(d.s);return d.r?s+" "+f:f+" "+s}var y=Y[L];return cap(pick(y.a)+pick(y.b)+pick(y.c))+" "+cap(pick(y.a)+pick(y.c))}
+var VS={med:{n:"Medieval (inglês)",a:W("Stone Oak Raven Iron Silver Mist Thorn Wolf Ash Amber Frost Willow"),b:W("brook ford haven wick hollow gate field watch moor ridge crest holm")},
+pt:{n:"Português",a:["Vila","Porto","Campo","Monte","Rio","Serra","Ponte","Pedra","Vale","Santa","São","Nova"],b:["Verde","Alto","Branco","das Águas","do Sol","da Lua","Velho","do Norte","Dourado","das Flores","do Vento","Grande"],sp:1},
+ori:{n:"Oriental",a:W("Kuro Shiro Aka Ao Yama Kawa Mori Hana Tsuki Kaze"),b:W("mura gawa saki yama shima dani hara")},
+elf:{n:"Élfica",y:"elf"},dwa:{n:"Anã",y:"dwa"},drk:{n:"Sombria",y:"drk"}};
+var VT=["Aldeia","Vila","Vilarejo","Cidade","Cidade fortificada","Porto","Posto avançado","Fortaleza"];
+var VF=["famosa pelo mercado de especiarias","construída sobre ruínas antigas","cercada por neblina permanente","governada por um conselho de anciãos","sede de uma guilda de mercenários","guarda um templo esquecido","tem uma forja lendária","assolada por uma antiga maldição","ponto de passagem de caravanas","protegida por uma muralha de espinhos vivos","refúgio de exilados e contrabandistas","onde todos juram ter visto um fantasma"];
+function genVila(st){var d=VS[st],nome=d.y?cap(pick(Y[d.y].a)+pick(Y[d.y].b)+pick(Y[d.y].c)):d.sp?pick(d.a)+" "+pick(d.b):cap(pick(d.a)+pick(d.b));var i=Math.floor(Math.random()*VT.length),tp=VT[i],pop=Math.round((60+Math.random()*(i<2?900:i<5?9000:40000))/10)*10,ft=pick(VF);return {txt:nome+" — "+tp+", "+ft+" (~"+pop+" hab.)",type:"city",rec:{nome:nome,pop:String(pop)+" habitantes",descricao:tp+" "+ft+"."}}}
+var WT=["Espada","Adaga","Machado","Lança","Arco","Cajado","Martelo","Besta","Foice","Katana","Escudo","Varinha"],WE=["do Crepúsculo","da Aurora","dos Mil Ecos","da Tempestade","do Lobo Cinzento","das Cinzas","do Rei Caído","da Lua Quebrada","do Silêncio","do Dragão Adormecido","das Marés","da Luz Pálida"],WM=["aço negro","prata","ferro frio","obsidiana","osso de dragão","cristal arcano","bronze antigo","madeira de salgueiro-ancião","mithril"],WX=["brilha quando há inimigos por perto","causa uma queimadura que não cicatriza","ganha poder sob a luz da lua","sussurra segredos ao portador","retorna à mão depois de lançada","ignora armaduras leves","cura o portador ao derrotar inimigos","nunca perde o fio"],WR=["Comum","Incomum","Raro","Épico","Lendário"];
+function genArma(tp){var t=tp||pick(WT),i=Math.min(4,Math.floor(Math.pow(Math.random(),1.8)*5)),nome=t+" "+pick(WE),mt=pick(WM),ef=pick(WX),lv=i*2+1+Math.floor(Math.random()*2);return {txt:nome+" · "+WR[i]+" · "+mt+" · "+ef,type:"weapon",rec:{nome:nome,tipo:t,raridade:WR[i],nivel:lv,material:mt,efeito:cap(ef)+"."}}}
+var Q1=["mercador endividado","cavaleiro desonrado","jovem curandeira","espião de uma nação rival","sacerdote que perdeu a fé","ladra de reputação lendária","anão exilado","caçador de recompensas","herdeiro de um trono esquecido","bardo que sabe demais"],Q2=["uma relíquia roubada","vingança contra um antigo mestre","a cura para uma doença misteriosa","um mapa que ninguém deveria ver","provas de uma conspiração","o paradeiro de alguém desaparecido","um aliado improvável","um refúgio seguro"],Q3=["a guarda da cidade já está de olho","o preço é a lealdade de um amigo","uma facção inimiga chegou primeiro","ninguém acredita nessa história","restam apenas três dias","a verdade pode destruir quem mais ama"];
+function genTrama(){var q=pick(Q1),tx="Um(a) "+q+" procura "+pick(Q2)+", mas "+pick(Q3)+".";return {txt:tx,type:"hist",rec:{titulo:"Ideia: "+q,texto:tx}}}
+var G={mode:"nomes",lang:"pt",sex:"x",n:"50",st:"med",wt:"",out:[]};
+function genRun(){var n=+G.n,out=[],seen={},k=0;
+ if(G.mode==="nomes"){while(out.length<n&&k++<n*30){var s=genName(G.lang,G.sex);if(!seen[s]){seen[s]=1;out.push({txt:s,type:"char",rec:{nome:s}})}}}
+ else if(G.mode==="vilas"){while(out.length<n&&k++<n*30){var v=genVila(G.st);if(!seen[v.rec.nome]){seen[v.rec.nome]=1;out.push(v)}}}
+ else if(G.mode==="armas"){while(out.length<n&&k++<n*30){var a=genArma(G.wt);if(!seen[a.rec.nome]){seen[a.rec.nome]=1;out.push(a)}}}
+ else{while(out.length<n&&k++<n*30){var q=genTrama();if(!seen[q.txt]){seen[q.txt]=1;out.push(q)}}}
+ G.out=out}
+function genView(){var w=h("div",{class:"box"});w.appendChild(h("h2",{text:"Geradores"}));w.appendChild(h("p",{class:"hint",text:"Gere ideias, clique para selecionar e salve no seu mundo."}));
+ var mb=h("div",{class:"row"});[["nomes","Nomes"],["vilas","Vilas e cidades"],["armas","Armas"],["tramas","Ideias de trama"]].forEach(function(m){mb.appendChild(h("button",{class:"btn"+(G.mode===m[0]?" pri":""),onclick:function(){G.mode=m[0];G.out=[];G.n=m[0]==="nomes"?"50":"10";render()}},m[1]))});w.appendChild(mb);
+ function sel(o,key){var s=h("select",{},o.map(function(x){return h("option",{value:x[0]},x[1])}));s.value=G[key];s.onchange=function(){G[key]=s.value};return s}
+ var qs=G.mode==="nomes"?["10","25","50","100","200","300"]:["5","10","20","50"],op=h("div",{class:"bar"});
+ if(G.mode==="nomes"){op.appendChild(sel(Object.keys(N).map(function(k){return [k,N[k].n]}).concat(Object.keys(Y).map(function(k){return [k,Y[k].n]})),"lang"));op.appendChild(sel([["x","Qualquer gênero"],["m","Masculino"],["f","Feminino"]],"sex"))}
+ if(G.mode==="vilas")op.appendChild(sel(Object.keys(VS).map(function(k){return [k,"Estilo: "+VS[k].n]}),"st"));
+ if(G.mode==="armas")op.appendChild(sel([["","Qualquer tipo"]].concat(WT.map(function(x){return [x,x]})),"wt"));
+ op.appendChild(sel(qs.map(function(x){return [x,x+" resultados"]}),"n"));w.appendChild(op);
+ var res=h("div"),tb=h("div",{class:"row"}),msg=h("p",{class:"hint"});
+ function paint(){res.textContent="";var c=G.out.filter(function(o){return o.sel}).length;G.out.forEach(function(o){res.appendChild(h("button",{class:"gi"+(G.mode==="nomes"?" s":"")+(o.sel?" sel":""),onclick:function(){o.sel=!o.sel;paint()}},o.txt))});tb.textContent="";if(!G.out.length)return;
+  tb.appendChild(h("button",{class:"btn",onclick:function(){var all=G.out.every(function(o){return o.sel});G.out.forEach(function(o){o.sel=!all});paint()}},"Selecionar todos"));
+  tb.appendChild(h("button",{class:"btn pri",onclick:function(){var n=0;G.out.forEach(function(o){if(o.sel){S[o.type].push(Object.assign({id:uid()},o.rec));o.sel=false;n++}});if(n){save();msg.textContent=n+" salvo(s) em "+TK[G.out[0].type].n+".";paint()}}},"Salvar selecionados ("+c+")"));
+  tb.appendChild(h("button",{class:"btn",onclick:function(){var ta=h("textarea");ta.value=G.out.map(function(o){return o.txt}).join("\n");res.textContent="";res.appendChild(ta);ta.select()}},"Ver como texto"))}
+ w.appendChild(h("div",{class:"row"},[h("button",{class:"btn pri",onclick:function(){genRun();msg.textContent="";paint()}},"🎲 Gerar")]));w.appendChild(msg);w.appendChild(tb);w.appendChild(res);paint();return w}
+/* ---------- Backup / importação ---------- */
+function showTxt(s,t){var m=$("msg");m.textContent="";m.appendChild(h("p",{class:"hint",text:t||"Copie o texto abaixo:"}));var ta=h("textarea");ta.value=s;m.appendChild(ta);ta.select()}
+function exp(){var s=JSON.stringify(S,null,1),f="rp-codex-"+new Date().toISOString().slice(0,10)+".json";
+ if(window.claude&&claude.use){claude.use("downloads").then(function(d){if(!d){showTxt(s,"Copie e guarde em um arquivo .json:");return}return d.save({filename:f,data:s})}).catch(function(e){if(!e||e.code!=="declined")showTxt(s,"Copie e guarde em um arquivo .json:")})}else showTxt(s,"Copie e guarde em um arquivo .json:")}
+function mergeIn(o){var n=0;T.forEach(function(t){(Array.isArray(o[t.k])?o[t.k]:[]).forEach(function(r){if(!r||typeof r!=="object")return;if(!r.id)r.id=uid();var i=S[t.k].findIndex(function(x){return x.id===r.id});if(i>-1)S[t.k][i]=r;else S[t.k].push(r);n++})});if(o._w&&!S._w)S._w=o._w;save();return n}
+function impFile(file){var rd=new FileReader();rd.onload=function(){try{var o=JSON.parse(rd.result);if(!o||typeof o!=="object")throw 0;var n=mergeIn(o);H=[];render();$("msg").textContent=n+" item(ns) importado(s)."}catch(e){$("msg").textContent="Arquivo inválido. Precisa ser um JSON."}};rd.readAsText(file)}
+function bulk(k,txt){var t=TK[k],n=0,fs=t.f.filter(function(f){return f[2]==="t"||f[2]==="a"});txt.split("\n").forEach(function(l){l=l.trim();if(!l)return;var p=l.split("|"),r={id:uid()};fs.forEach(function(f,i){if(p[i]!=null&&p[i].trim())r[f[0]]=p[i].trim()});if(!r[t.f[0][0]])return;S[k].push(r);n++});save();return n}
+function kindTxt(f){var k=f[2];return k==="t"?"texto":k==="a"?"texto longo":k==="n"?"número":k==="i"?"(imagem: omita)":k.indexOf("s:")===0?"id de um item de "+k.slice(2):k.indexOf("m:")===0?"lista de ids de itens de "+k.slice(2):"um destes: "+k.slice(2)}
+function tpl(){var l=["Converta as minhas anotações de RP para um único JSON neste formato. Responda só com o JSON.","Estrutura: {\"_w\":\"nome do mundo\", \"tipo\":[{\"id\":\"curto-e-unico\", \"campo\":\"valor\"}], ...}.","Todo item precisa de \"id\" único. Campos que apontam para outro item usam o id dele (o item apontado deve existir na lista do tipo certo). Omita o que não souber.","","Tipos e campos:"];T.forEach(function(t){l.push("- \""+t.k+"\" ("+t.n+"): "+t.f.map(function(f){return f[0]+" ["+kindTxt(f)+"]"}).join("; "))});l.push("","Minhas anotações:","(cole aqui)");return l.join("\n")}
+function foot(){var f=h("div",{class:"foot"}),fi=h("input",{type:"file",accept:".json,application/json",style:"display:none",onchange:function(){if(this.files[0])impFile(this.files[0])}});
+ var wipe=h("button",{class:"btn dng",onclick:function(){if(armed!=="all"){armed="all";wipe.textContent="Confirmar: apagar tudo";return}armed="";var w=S._w;S={_w:w};T.forEach(function(t){S[t.k]=[]});save();H=[];render()}},"Apagar tudo");
+ f.appendChild(h("div",{class:"row"},[h("button",{class:"btn",onclick:exp},"Exportar backup"),h("button",{class:"btn",onclick:function(){fi.click()}},"Importar backup (junta com o que já existe)"),wipe,fi]));
+ var bt=h("select",{},T.filter(function(t){return t.f[0][2]==="t"}).map(function(t){return h("option",{value:t.k},t.n)})),ta=h("textarea",{placeholder:"Um item por linha. Opcional: separe campos com | (nome | descrição | …)"});
+ f.appendChild(h("details",{},[h("summary",{text:"Importar em massa (colar uma lista)"}),h("p",{class:"hint",text:"Escolha o tipo e cole uma lista. Cada linha vira uma ficha. Depois você complementa os detalhes."}),bt,ta,h("div",{class:"row"},[h("button",{class:"btn pri",style:"--tc:var(--ac)",onclick:function(){var n=bulk(bt.value,ta.value);ta.value="";render();$("msg").textContent=n+" ficha(s) criada(s)."}},"Criar fichas")])]));
+ f.appendChild(h("details",{},[h("summary",{text:"Trazer todo o meu RP atual (modelo para IA)"}),h("p",{class:"hint",text:"Gera um texto pronto: cole no Claude (ou outro assistente) junto com as suas anotações. Ele devolve um JSON; salve em um arquivo .json e use Importar backup."}),h("button",{class:"btn",onclick:function(){showTxt(tpl(),"Copie tudo e cole no assistente:")}},"Gerar modelo")]));
+ f.appendChild(h("div",{id:"msg",class:"hint"}));return f}
+render();
+</script></body></html>
