@@ -1,0 +1,6 @@
+/* RP Codex: funciona sem internet. Busca a versão nova quando há conexão. */
+var CACHE="rpcodex-v3",FILES=["./","./index.html","./manifest.webmanifest","./icon-192.png","./icon-512.png"];
+self.addEventListener("install",function(e){e.waitUntil(caches.open(CACHE).then(function(c){return c.addAll(["./","./index.html"]).then(function(){return Promise.all(FILES.slice(2).map(function(f){return c.add(f).catch(function(){})}))})}).then(function(){return self.skipWaiting()}))});
+self.addEventListener("activate",function(e){e.waitUntil(caches.keys().then(function(k){return Promise.all(k.filter(function(n){return n.indexOf("rpcodex-")===0&&n!==CACHE}).map(function(n){return caches.delete(n)}))}).then(function(){return self.clients.claim()}))});
+self.addEventListener("fetch",function(e){var r=e.request;if(r.method!=="GET"||r.url.indexOf(self.registration.scope)!==0)return;
+ e.respondWith(fetch(r,{cache:"no-cache"}).then(function(res){if(res.ok){var copy=res.clone();e.waitUntil(caches.open(CACHE).then(function(c){return c.put(r,copy)}))}return res}).catch(function(){return caches.match(r,{ignoreSearch:true}).then(function(m){return m||(r.mode==="navigate"?caches.match("./index.html"):Response.error())})}))});
