@@ -81,6 +81,10 @@ img.inl{display:block;max-width:100%;border-radius:12px;margin:10px auto;cursor:
 .mk{display:flex;justify-content:space-between;align-items:center;gap:8px;margin:6px 0;flex-wrap:wrap}
 .bigroll{text-align:center;padding:10px}.bigroll b{display:block;font:700 3.5rem var(--ft);color:var(--tc)}
 .fighter.now{border:2px solid var(--tc)}.fighter .bar{margin:8px 0}.hp{height:8px;background:var(--line);border-radius:99px;overflow:hidden;margin-top:4px}.hp i{display:block;height:100%;background:#1a9d4b}#addc input,#addc select{margin-top:6px}
+.bars .pbar{padding:10px 12px}.track{height:16px;background:var(--line);border-radius:99px;overflow:hidden;margin:4px 0}.track i{display:block;height:100%;background:var(--tc);transition:width .3s}.pbar .amt{width:80px}.pbar .why{flex:1 1 140px;width:auto}.bars input,.bars select,.newbar>select{margin-top:6px}.pbar .bar input{margin:0}.lab{display:block;margin:6px 0}
+.live{display:grid;gap:12px}.live>.box{min-width:0}.live .item select{margin-top:6px}#notes{min-height:280px}
+@media(min-width:1000px){#app:has(.live){max-width:1400px}.live{grid-template-columns:1fr 1.25fr 1fr;align-items:start}}
+.timeline{list-style:none;padding:0;margin:0 0 0 14px;border-left:3px solid var(--tc)}.timeline li{position:relative;padding:0 0 18px 22px}.when{position:absolute;left:-17px;top:0;min-width:31px;height:31px;border-radius:99px;background:var(--tc);color:var(--bg);font-weight:700;font-size:.8rem;display:flex;align-items:center;justify-content:center;padding:0 4px}.ev{background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:8px 12px;overflow-wrap:anywhere}.ev p{margin:4px 0}.evt{font-weight:700;text-align:left}.ev img.inl{max-height:220px}.diff b{font-size:1.3rem;color:var(--tc)}
 .warn{border:2px solid #d99a00;border-radius:12px;padding:10px 12px;margin-bottom:12px;display:flex;gap:8px;justify-content:space-between;align-items:center;flex-wrap:wrap}.warn .btn{margin-right:6px;--tc:var(--ac)}
 </style></head><body><div id="app"><p class="hint">Carregando…</p></div><div id="toast" role="status" aria-live="polite"></div>
 <script>
@@ -126,7 +130,7 @@ function migrate(k,r){var spec=OLD[k];if(!spec)return r;var shorts=[],blocks=[],
  var all=blocks.concat(priv);if(all.length)r.desc=(Array.isArray(r.desc)?r.desc:[]).concat(all);return r}
 var CATS=[["mundo","🌍 Mundo"],["jogo","🎲 Jogo"],["regras","📜 Regras e saber"],["social","🤝 Hierarquia"],["economia","💰 Economia"],["mapas","🗺 Mapas"],["tools","🧰 Ferramentas"]];
 var TL=[
-{k:"dice",c:"jogo",n:"🎲 Dados",h:260},{k:"combat",c:"jogo",n:"⚔ Combate",h:0},{k:"mapv",c:"mapas",n:"📍 Mapa do mundo",h:90},{k:"gallery",c:"tools",n:"🖼 Galeria",h:300},{k:"worlds",c:"tools",n:"🌐 Mundos",h:210},{k:"fields",c:"tools",n:"🧩 Campos",h:45},{k:"backup",c:"tools",n:"💾 Backup e offline",h:150},
+{k:"live",c:"jogo",n:"🎬 Modo sessão",h:190},{k:"encounter",c:"jogo",n:"🐉 Encontros",h:10},{k:"dice",c:"jogo",n:"🎲 Dados",h:260},{k:"combat",c:"jogo",n:"⚔ Combate",h:0},{k:"timeline",c:"mapas",n:"🕰 Linha do tempo",h:265},{k:"mapv",c:"mapas",n:"📍 Mapa do mundo",h:90},{k:"gallery",c:"tools",n:"🖼 Galeria",h:300},{k:"worlds",c:"tools",n:"🌐 Mundos",h:210},{k:"fields",c:"tools",n:"🧩 Campos",h:45},{k:"backup",c:"tools",n:"💾 Backup e offline",h:150},
 {k:"graph",c:"mapas",n:"🕸 Relações",h:280},{k:"family",c:"mapas",n:"🌳 Genealogia",h:30},{k:"org",c:"social",n:"🏛 Organograma",h:215},{k:"repm",c:"social",n:"⚖ Reputação",h:345},{k:"skills",c:"mapas",n:"✨ Árvore de magias",h:280},{k:"charts",c:"mapas",n:"📊 Gráficos",h:200},{k:"invv",c:"economia",n:"🎒 Inventários",h:130},
 {k:"gen",c:"tools",n:"🎲 Geradores",h:170},{k:"check",c:"tools",n:"✅ Verificador",h:140},{k:"log",c:"tools",n:"🕘 Histórico",h:230},{k:"forgot",c:"tools",n:"💤 Esquecidos",h:260},{k:"intro",c:"tools",n:"📖 Resumo para jogador",h:190},{k:"theme",c:"tools",n:"🎨 Tema",h:310}];
 var VIEWS={};
@@ -257,7 +261,7 @@ function view(t){var r=find(t.k,V.id);if(!r){V.mode="list";return list(t)}
   else if(k==="u"){var u=safeUrl(v);b.appendChild(u?h("a",{href:u,target:"_blank",rel:"noopener noreferrer"},"▶ Abrir música / playlist"):h("p",{class:"tx",text:String(v)}))}
   else b.appendChild(rich(v))});
  extras(t,r,b);
- if(t.k==="map")b.appendChild(mapBoard(r));
+ if(t.k==="map")b.appendChild(mapBoard(r));if(t.k==="char")b.appendChild(barsSection(r));
  var refs={};T.forEach(function(t2){S[t2.k].forEach(function(r2){if(t2.k===t.k&&r2.id===r.id)return;var label=[];t2.f.forEach(function(f){var k=f[2];if((k==="s:"+t.k&&r2[f[0]]===r.id)||(k==="m:"+t.k&&Array.isArray(r2[f[0]])&&r2[f[0]].indexOf(r.id)>-1))label.push(f[1])});if(mentions(r2,t2).some(function(x){return x[0]===t.k&&x[1]===r.id}))label.push("Citado no texto");if(label.length)(refs[t2.k]=refs[t2.k]||[]).push([t2.k,r2.id,label.join(", ")])})});
  Object.keys(refs).forEach(function(k){b.appendChild(h("div",{class:"fl",text:"Aparece em: "+TK[k].n}));b.appendChild(chips(refs[k]))});
  var vs=S._hist.filter(function(e){return e.k===t.k&&e.id===r.id}).reverse();
@@ -301,7 +305,7 @@ function readImg(file,cb,max){max=max||800;var fr=new FileReader();fr.onerror=fu
 /* ========== 8. Backup / importação ========== */
 function showTxt(s,t){var m=$("msg");m.textContent="";m.appendChild(h("p",{class:"hint",text:t||"Copie o texto abaixo:"}));var ta=textBox(s);m.appendChild(ta);ta.select()}
 function exp(){var s=JSON.stringify(S),f="rp-codex-"+(norm(S._w).replace(/[^a-z0-9]+/g,"-")||"mundo")+"-"+new Date().toISOString().slice(0,10)+".json",w=META.cur;download(f,s,function(){showTxt(s,"Copie e guarde em um arquivo .json:")},function(){if(w!==META.cur)return;S._backupAt=Date.now();S._dirty=0;S._dirtyAt=0;persist();render();toast("Backup exportado.")})}
-function mergeIn(o){var n=0;if(isObj(o._imgs))Object.keys(o._imgs).forEach(function(k){if(isData(o._imgs[k])&&!S._imgs[k])S._imgs[k]=o._imgs[k]});mergeExtras(o);T.forEach(function(t){(Array.isArray(o[t.k])?o[t.k]:[]).forEach(function(r){if(!isObj(r))return;migrate(t.k,r);fixRec(t,r);externalize(r);var i=S[t.k].findIndex(function(x){return x.id===r.id});if(i>-1){var vals={};t.f.forEach(function(f){if(f[0] in r)vals[f[0]]=r[f[0]]});update(t.k,r.id,vals);if("fav" in r)S[t.k][i].fav=r.fav;if(Array.isArray(r.marks))S[t.k][i].marks=r.marks}else S[t.k].push(r);n++})});if(typeof o._w==="string"&&!S._w)S._w=o._w;if(typeof o._theme==="string"&&!S._theme)S._theme=o._theme;if(Array.isArray(o._hist)&&!S._hist.length)S._hist=o._hist.filter(isObj);normalize();save();return n}
+function mergeIn(o){var n=0;if(isObj(o._imgs))Object.keys(o._imgs).forEach(function(k){if(isData(o._imgs[k])&&!S._imgs[k])S._imgs[k]=o._imgs[k]});mergeExtras(o);T.forEach(function(t){(Array.isArray(o[t.k])?o[t.k]:[]).forEach(function(r){if(!isObj(r))return;migrate(t.k,r);fixRec(t,r);externalize(r);var i=S[t.k].findIndex(function(x){return x.id===r.id});if(i>-1){var vals={};t.f.forEach(function(f){if(f[0] in r)vals[f[0]]=r[f[0]]});update(t.k,r.id,vals);if("fav" in r)S[t.k][i].fav=r.fav;if(Array.isArray(r.marks))S[t.k][i].marks=r.marks;if(Array.isArray(r.bars))S[t.k][i].bars=r.bars}else S[t.k].push(r);n++})});if(typeof o._w==="string"&&!S._w)S._w=o._w;if(typeof o._theme==="string"&&!S._theme)S._theme=o._theme;if(Array.isArray(o._hist)&&!S._hist.length)S._hist=o._hist.filter(isObj);normalize();save();return n}
 function impFile(file){var rd=new FileReader();rd.onload=function(){var n;try{var o=JSON.parse(String(rd.result).replace(/^﻿/,""));if(!isObj(o))throw 0;n=mergeIn(o)}catch(e){$("msg").textContent="Arquivo inválido. Precisa ser um JSON.";return}H=[];render();$("msg").textContent=n+" item(ns) importado(s)."};rd.readAsText(file)}
 function bulk(k,txt){var t=TK[k],n=0,fs=[t.f[0],DESC];txt.split("\n").forEach(function(l){l=l.trim();if(!l)return;var p=[],cur="",depth=0;for(var i=0;i<l.length;i++){if(l.substr(i,2)==="[["){depth++;cur+="[[";i++;continue}if(l.substr(i,2)==="]]"){depth=Math.max(0,depth-1);cur+="]]";i++;continue}if(l[i]==="|"&&!depth){p.push(cur);cur=""}else cur+=l[i]}p.push(cur);var r={};fs.forEach(function(f,i){var v=i?p.slice(1).join(" | ").trim():(p[i]||"").trim();if(v)r[f[0]]=i?[{t:"txt",v:v}]:v});if(!r[t.f[0][0]])return;create(k,r);n++});save();return n}
 function kindTxt(f){var k=f[2];return k==="t"?"texto":k==="d"?"lista de blocos de texto: [{\"t\":\"txt\",\"v\":\"...\"}]":k==="n"?"número":k==="u"?"link http":k==="i"?"(imagem: omita)":k.indexOf("s:")===0?"id de um item de "+k.slice(2):k.indexOf("m:")===0?"lista de ids de itens de "+k.slice(2):"um destes: "+k.slice(2)}
@@ -406,7 +410,7 @@ VIEWS.forgot=function(){var w=panel("Personagens esquecidos","Quem nunca aparece
 /* ========== 14. Resumo para jogador novo ========== */
 var IN={on:{nation:1,city:1,group:1,char:1,race:1,hist:1,gloss:1},onlyFav:false};
 var INTRO=[["nation","Nações",["capital","governante"]],["city","Cidades",["nacao","pop"]],["group","Grupos",["lider"]],["race","Raças",[]],["char","Personagens",["raca","grupos","cidade","status"]],["hist","História",[]],["gloss","Glossário",["categoria"]]];
-function introData(){return INTRO.filter(function(s){return IN.on[s[0]]}).map(function(s){var t=TK[s[0]],rs=sorted(t,S[s[0]]).filter(function(r){return !(s[0]==="gloss"&&(r.categoria==="Rumor"||r.categoria==="Evento"))&&!(s[0]==="char"&&IN.onlyFav&&!r.fav)});
+function introData(){return INTRO.filter(function(s){return IN.on[s[0]]}).map(function(s){var t=TK[s[0]],rs=sorted(t,S[s[0]]).filter(function(r){return !r.oculto&&!(s[0]==="gloss"&&(r.categoria==="Rumor"||r.categoria==="Evento"))&&!(s[0]==="char"&&IN.onlyFav&&!r.fav)});
  return {title:s[1],items:rs.map(function(r){var lines=[];s[2].forEach(function(key){var f=t.f.filter(function(f){return f[0]===key})[0],v=r[key],k=f[2];if(v==null||v===""||Array.isArray(v)&&!v.length)return;if(k.indexOf("s:")===0){if(!find(k.slice(2),v))return;v=rn(k.slice(2),v)}else if(k.indexOf("m:")===0)v=v.map(function(x){return rn(k.slice(2),x)}).join(", ");lines.push([f[1],plain(v)])});
   var blocks=(r.desc||[]).filter(function(b){return !b.priv}).map(function(b){return b.t==="img"?{img:src(b.src),cap:plain(b.cap||"")}:{text:plain(b.v)}});return {name:nm(r,t),img:imgOf(r,t),lines:lines,blocks:blocks}})}}).filter(function(s){return s.items.length})}
 function esc(s){return String(s).replace(/[&<>"']/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]})}
@@ -603,11 +607,12 @@ var GF={nomes:function(){var s=genName(G.lang,G.sex);return {txt:s,type:"char",r
 function genRun(){var n=Number(G.n)||5,out=[],seen={},k=0;while(out.length<n&&k++<n*30){var o=GF[G.mode](),key=G.mode==="vilas"||G.mode==="armas"?o.rec.nome:o.txt;if(!seen[key]){seen[key]=1;out.push(o)}}G.out=out}
 function saveGen(){var n=0,where=[];G.out.forEach(function(o){if(!o.sel)return;var rec=clone(o.rec);if(o.race){var r=S.race.filter(function(x){return norm(x.nome)===norm(o.race)})[0]||create("race",{nome:o.race});rec.raca=r.id}create(o.type,rec);o.sel=false;n++;if(where.indexOf(TK[o.type].n)<0)where.push(TK[o.type].n)});if(n)save();return n?n+" salvo(s) em "+where.join(", ")+".":"Selecione pelo menos um resultado."}
 VIEWS.gen=function(){var w=panel("Geradores","Gere ideias, clique para selecionar e salve no seu mundo.");
- var mb=h("div",{class:"row"});MODES.forEach(function(m){mb.appendChild(btn(m[1],function(){G.mode=m[0];G.out=[];G.n=m[0]==="nomes"?"50":m[0]==="pc"||m[0]==="dia"?"1":"5";render()},G.mode===m[0]?"pri":""))});w.appendChild(mb);
+ var mb=h("div",{class:"row"});MODES.forEach(function(m){mb.appendChild(btn(m[1],function(){G.mode=m[0];G.out=[];G.n=m[0]==="nomes"?"50":m[0]==="pc"||m[0]==="dia"||m[0]==="enredo"?"1":"5";render()},G.mode===m[0]?"pri":""))});w.appendChild(mb);
  function s(o,key){return sel(o,G[key],function(v){G[key]=v})}
- var qs=G.mode==="nomes"?["10","25","50","100","200","300"]:["1","3","5","10","20"];if(qs.indexOf(G.n)<0)G.n=qs[2];var op=h("div",{class:"bar"});
+ var qs=G.mode==="nomes"?["10","25","50","100","200","300"]:["1","3","5","10","20"];if(G.mode==="enredo")qs=["1","2","3"];if(qs.indexOf(G.n)<0)G.n=qs[G.mode==="enredo"?0:2];var op=h("div",{class:"bar"});
  if(G.mode==="nomes"||G.mode==="pc"){op.appendChild(s(Object.keys(N).map(function(k){return [k,N[k].n]}).concat(Object.keys(Y).map(function(k){return [k,Y[k].n]})),"lang"));op.appendChild(s([["x","Qualquer gênero"],["m","Masculino"],["f","Feminino"]],"sex"))}
  if(G.mode==="pc"){if(!find("race",G.race))G.race="";op.appendChild(s(opts("race",S.race.length?"Qualquer raça do meu mundo":"Raça aleatória"),"race"))}
+ if(G.mode==="enredo"){if(!ENR[ENO.tema])ENO.tema="";op.appendChild(sel([["","Qualquer tema"]].concat(Object.keys(ENR).map(function(k){return [k,ENR[k].n]})),ENO.tema,function(v){ENO.tema=v}));op.appendChild(sel([["3","Curto: 3 atos"],["5","Longo: 5 atos"],["7","Épico: 7 atos"]],ENO.atos,function(v){ENO.atos=v}));var um=h("input",{type:"checkbox",onchange:function(){ENO.mundo=this.checked}});um.checked=ENO.mundo;w.appendChild(h("label",{class:"chk"},[um,"Usar personagens, cidades e grupos do meu mundo"]));w.appendChild(h("p",{class:"hint",text:"Selecione o enredo e salve na História (fica privado, fora do resumo para jogadores) ou transforme os atos em missões."}))}
  if(G.mode==="vilas")op.appendChild(s(Object.keys(VS).map(function(k){return [k,"Estilo: "+VS[k].n]}),"st"));
  if(G.mode==="lugares")op.appendChild(s(Object.keys(PLK).map(function(k){return [k,PLK[k]]}),"place"));
  if(G.mode==="armas")op.appendChild(s([["","Qualquer tipo"]].concat(WT.map(function(x){return [x,x]})),"wt"));
@@ -619,6 +624,7 @@ VIEWS.gen=function(){var w=panel("Geradores","Gere ideias, clique para seleciona
  function paint(){res.textContent="";extra.textContent="";var c=G.out.filter(function(o){return o.sel}).length;G.out.forEach(function(o){res.appendChild(h("button",{type:"button",class:"gi"+(G.mode==="nomes"?" s":"")+(o.sel?" sel":""),"aria-pressed":String(!!o.sel),onclick:function(){o.sel=!o.sel;paint()}},o.txt))});tb.textContent="";if(!G.out.length)return;
   tb.appendChild(btn("Selecionar todos",function(){var all=G.out.every(function(o){return o.sel});G.out.forEach(function(o){o.sel=!all});paint()}));
   tb.appendChild(btn("Salvar selecionados ("+c+")",function(){var m=saveGen();render();var e=$("genmsg");if(e)e.textContent=m},"pri"));
+  if(G.mode==="enredo")tb.appendChild(btn("Criar missões dos atos",function(){var n=plotMissions();msg.textContent=n?n+" missão(ões) criada(s).":"Selecione o enredo primeiro."}));
   tb.appendChild(btn("Copiar como texto",function(){copyText(G.out.map(function(o){return o.txt}).join(G.mode==="nomes"?"\n":"\n\n"),extra)}))}
  w.appendChild(h("div",{class:"row"},btn("🎲 Gerar",function(){genRun();msg.textContent="";paint()},"pri")));msg.id="genmsg";w.appendChild(msg);w.appendChild(tb);w.appendChild(extra);w.appendChild(res);paint();return w};
 
@@ -656,7 +662,7 @@ function fixRec(t,r){if(!r.id)r.id=uid();r.id=String(r.id);if(typeof r.desc==="s
  t.f.forEach(function(f){var key=f[0],k=f[2],v=r[key];if(v==null)return;
   if(k==="d")r[key]=(Array.isArray(v)?v:[]).filter(function(b){return isObj(b)&&(b.t==="txt"&&typeof b.v==="string"||b.t==="img"&&typeof b.src==="string")});
   else if(k.indexOf("m:")===0)r[key]=(Array.isArray(v)?v:[v]).filter(function(x){return typeof x==="string"&&x});else if(typeof v==="object")r[key]=Array.isArray(v)?v.join(", "):""});
- if(Array.isArray(r.marks))r.marks=r.marks.filter(isObj);return r}
+ if(Array.isArray(r.marks))r.marks=r.marks.filter(isObj);if(t.k==="char"&&r.bars)r.bars=fixBars(r.bars);return r}
 function cleanFields(o){var out={};if(isObj(o))Object.keys(o).forEach(function(k){if(BASE[k]&&Array.isArray(o[k]))out[k]=o[k].filter(function(x){return isObj(x)&&/^x_\w+$/.test(x.key)&&typeof x.label==="string"&&(x.type==="t"||x.type==="n")})});return out}
 function applyFields(){T.forEach(function(t){t.f=BASE[t.k].concat(((S._fields||{})[t.k]||[]).map(function(x){return [x.key,x.label,x.type,"Campos personalizados"]}))})}
 function normalize(){if(!isObj(S))S={};if(!isObj(S._imgs))S._imgs={};S._fields=cleanFields(S._fields);applyFields();
@@ -793,5 +799,140 @@ VIEWS.backup=function(){var w=panel("Backup e uso sem internet","Seus dados fica
  w.appendChild(h("p",{class:"offline",text:!canOffline()?"O uso sem internet funciona no site publicado (ex.: GitHub Pages) com todos os arquivos do app. Aberto como arquivo no computador, ele já funciona sem internet.":offState==="ok"?"✅ Pronto: este site já abre sem internet neste aparelho.":offState==="erro"?"Não consegui preparar o modo sem internet. Confira se sw.js foi enviado junto com o index.html.":"Preparando… (confira se sw.js foi enviado junto com o index.html)"}));
  if(installEvt)w.appendChild(btn("📲 Instalar como aplicativo",function(){installEvt.prompt();installEvt=null;render()},"pri"));
  else if(canOffline())w.appendChild(h("p",{class:"hint",text:"Para instalar: no menu do navegador, escolha “Instalar app” ou “Adicionar à tela inicial”."}));return w};
+/* ========== 35. Enredos longos ========== */
+var ENR={
+aventura:{n:"Aventura",titulo:["A Rota Esquecida","O Mapa Partido","Além da Última Fronteira","A Herança Perdida"],obj:["o Mapa dos Sete Marcos","a Chave de Âmbar","a Bússola Sem Norte","o Sino das Profundezas"],
+ gancho:["{aliado} aparece ferido em {local} com metade de um segredo: só quem alcançar {obj} primeiro poderá impedir {vilao}.","Uma dívida antiga obriga {heroi} a procurar {obj} antes que {vilao} ponha as mãos nisso."],meta:["usar {obj} para abrir um caminho que deveria continuar fechado","vender {obj} a quem pagar mais, mesmo que isso arruíne {local}"]},
+intriga:{n:"Intriga política",titulo:["O Trono em Silêncio","Votos de Sangue Frio","A Corte das Máscaras","O Tratado Falso"],obj:["o selo do antigo conselho","uma carta que prova a traição","o testamento desaparecido","a lista dos informantes"],
+ gancho:["Em {local}, {heroi} recebe por engano uma mensagem endereçada a {vilao} e descobre que {obj} pode mudar quem governa.","{aliado} pede ajuda a {heroi}: alguém quer incriminar o grupo {faccao} usando {obj}."],meta:["tomar o poder sem que ninguém perceba o golpe","provocar uma guerra entre as facções {faccao} e {faccao2} para governar os escombros"]},
+misterio:{n:"Mistério",titulo:["Ninguém Ouviu o Sino","A Casa das Perguntas","O Desaparecido de Amanhã","Sete Chaves, Seis Portas"],obj:["um diário escrito em código","um relógio parado na mesma hora","um retrato com o rosto raspado","uma chave sem fechadura conhecida"],
+ gancho:["Pessoas somem em {local}, e a única pista deixada é {obj}. {aliado} jura que {heroi} será a próxima pessoa a sumir.","{heroi} encontra {obj} entre os próprios pertences, sem lembrar como foi parar ali."],meta:["apagar todas as provas de um acontecimento antigo","reunir testemunhas esquecidas para completar um ritual de memória"]},
+terror:{n:"Terror",titulo:["O Que Dorme sob a Praça","A Noite Que Não Passa","Os Nomes no Poço","Quando as Velas Apagam"],obj:["o livro dos nomes proibidos","uma máscara que sussurra","o último lampião sagrado","um osso gravado com preces"],
+ gancho:["As noites em {local} estão ficando mais longas. {heroi} percebe que tudo começou quando {obj} foi desenterrado.","{aliado} envia um pedido de socorro de {local}, datado de um dia que ainda não chegou."],meta:["despertar algo antigo em troca de nunca morrer","entregar os habitantes de {local} para salvar uma única pessoa"]},
+guerra:{n:"Guerra",titulo:["As Cinzas da Fronteira","O Último Estandarte","Marcha sem Retorno","A Paz Comprada"],obj:["os planos de invasão","o estandarte capaz de unir os clãs","as chaves das represas","o registro das tropas escondidas"],
+ gancho:["O exército se aproxima de {local}. {heroi} precisa recuperar {obj} enquanto o grupo {faccao} discute se deve lutar ou fugir.","Um massacre é atribuído à facção {faccao}, mas {aliado} viu quem realmente deu a ordem: {vilao}."],meta:["prolongar a guerra, porque a paz revelaria seus crimes","conquistar {local} e usar a cidade como exemplo"]}};
+var ATOS=[
+ {n:"O chamado",obj:"entender o que está em jogo e decidir participar",cenas:["Um encontro em {local} termina em perseguição.","{aliado} conta uma versão incompleta dos fatos e pede segredo.","{heroi} vê de perto o estrago causado por quem serve a {vilao}.","O grupo {faccao} oferece pagamento, com uma condição suspeita.","Um objeto pessoal de {heroi} aparece onde não deveria."]},
+ {n:"As primeiras pistas",obj:"descobrir onde está o que todos procuram",cenas:["Uma testemunha em {local2} só fala depois de receber um favor.","Um arquivo guardado pela facção {faccao2} revela um nome apagado.","Alguém imita {aliado} para marcar um encontro falso.","Uma pista verdadeira e uma plantada por {vilao} apontam para lados opostos.","Uma festa pública serve de cobertura para uma troca secreta."]},
+ {n:"A complicação",obj:"avançar sem perder os aliados",cenas:["A facção {faccao} muda de lado depois de uma ameaça.","{aliado} vai para a prisão em {local2} por um crime que talvez tenha cometido.","A viagem é interrompida por um bloqueio e só resta um atalho perigoso.","Um inocente passa a depender de {heroi} para sobreviver.","{vilao} propõe um acordo vantajoso demais para ser recusado sem custo."]},
+ {n:"A virada",obj:"lidar com a verdade que muda tudo",cenas:["Descobre-se que {aliado} já trabalhou para {vilao}.","{obj_cap} que todos disputavam é uma cópia.","O primeiro responsável por esta crise pertence à história da família de {heroi}.","A facção {faccao2}, que todos viam como ameaça, guarda a única prova contra {vilao}.","Um ataque a {local} revela que o plano começou anos antes."]},
+ {n:"A queda",obj:"sobreviver à derrota e escolher o que ainda pode ser salvo",cenas:["{vilao} toma {obj_baixo} diante de todos.","{local} se volta contra {heroi} por causa de uma mentira bem contada.","Um aliado se sacrifica ou desaparece para cobrir a fuga.","A facção {faccao} quase desaparece e culpa o grupo.","{heroi} precisa abandonar um objetivo pessoal para continuar."]},
+ {n:"A reunião de forças",obj:"conseguir aliados, recursos e um plano",cenas:["Um antigo rival aceita ajudar em troca de um juramento.","{heroi} negocia com a facção {faccao2} e paga um preço alto pela aliança.","Em {local2}, encontra-se a fraqueza do plano de {vilao}.","{aliado} volta com uma informação e uma ferida que não explica.","O povo de {local} precisa ser convencido a agir."]},
+ {n:"O confronto",obj:"impedir {vilao} antes que não haja volta",cenas:["A invasão ao refúgio acontece em duas frentes ao mesmo tempo.","{vilao} revela por que acredita estar fazendo o certo.","{heroi} escolhe entre recuperar {obj_baixo} e salvar {aliado}.","A batalha chega às ruas de {local}.","Um segredo exposto em público faz os seguidores de {vilao} hesitarem."]}];
+var OBST=["restam poucos dias para agir","ninguém acredita nas provas","a lei está do lado do inimigo","um espião acompanha cada passo","o preço é trair uma promessa","o caminho passa por território hostil","um dos personagens guarda um segredo que atrapalha"];
+var ESC=["revelar a verdade agora ou esperar por provas melhores","salvar uma pessoa ou proteger muitas","confiar na facção {faccao2} ou agir sem apoio","usar o mesmo método de {vilao} para vencer","entregar {obj_baixo} em troca de uma vida","cumprir a lei de {local} ou fazer justiça por conta própria"];
+var SUB=["{aliado} tenta pagar uma dívida antiga sem que ninguém saiba.","Um parente de {heroi} defende {vilao} por motivos que parecem justos.","A facção {faccao} enfrenta uma disputa interna pela liderança.","Um romance ou amizade atravessa os dois lados do conflito.","Um comerciante de {local2} lucra com a crise e deixa rastros úteis.","Uma profecia mal interpretada faz a facção {faccao2} agir no momento errado.","Uma criança de {local} viu tudo, mas conta em forma de história."];
+var REV=["A motivação de {vilao} nasceu de uma injustiça real que a facção {faccao} ajudou a esconder.","{aliado} foi quem entregou a primeira pista a {vilao}, sem saber o que fazia.","{local} nasceu do mesmo erro que está prestes a se repetir.","A vitória fácil do início foi planejada para colocar {heroi} onde {vilao} precisava."];
+var FINS=[["Vitória com preço","{vilao} cai, mas {local} perde algo que levará anos para recuperar."],["Acordo amargo","{heroi} poupa {vilao} em troca da verdade, e parte da facção {faccao} não aceita."],["Derrota que planta o futuro","{vilao} vence hoje, porém {aliado} salva a prova que pode derrubá-lo."],["Novo poder","A facção {faccao2} aproveita o vazio deixado pelo conflito e assume o controle."],["Redenção","{vilao} desiste do plano ao encarar o que causou, e alguém precisa decidir se há perdão."]];
+var ENO={tema:"",atos:"5",mundo:true};
+function sample(a,n){var c=a.slice(),o=[];while(c.length&&o.length<n)o.push(c.splice(Math.floor(Math.random()*c.length),1)[0]);return o}
+function genEnredo(){var T0=ENR[ENO.tema]||ENR[pick(Object.keys(ENR))],used={};
+ function link(r,t){var n=nm(r,t);return /[\[\]|]/.test(n)?n:"[["+n+"]]"}
+ function take(k,make,filter){if(ENO.mundo){var c=sample(S[k].filter(function(r){return !used[r.id]&&(!filter||filter(r))}),1)[0];if(c){used[c.id]=1;return link(c,TK[k])}}var v,i=0;do{v=make()}while(used[v]&&i++<30);used[v]=1;return v}
+ function person(){return genName(pick(["pt","en","es","it","no","ce","elf"]),"x")}
+ function place(){return pick(["Porto","Vila","Forte","Vale"])+" "+pick(["das Garças","Cinzento","do Norte","da Ponte","Dourado","das Brumas"])}
+ function fac(){return pick(["Guarda Cinzenta","Liga do Sal","Ordem do Lampião","Casa Varen","Irmandade da Maré","Conselho das Sete Portas"])}
+ var alive=function(c){return !isDead(c)};
+ var x={heroi:take("char",person,alive),vilao:take("char",person,alive),aliado:take("char",person,alive),local:take("city",place),local2:take("city",place),faccao:take("group",fac),faccao2:take("group",fac)},obj=pick(T0.obj);
+ x.obj=obj;x.obj_baixo=obj;x.obj_cap=cap(obj);
+ function fill(s){return cap(s.replace(/\{(\w+)\}/g,function(_,k){return x[k]}))}
+ function low(s){return s.replace(/\{(\w+)\}/g,function(_,k){return x[k]})}
+ var n=Number(ENO.atos)||5,idx={3:[0,3,6],5:[0,1,3,4,6],7:[0,1,2,3,4,5,6]}[n]||[0,1,3,4,6],title=pick(T0.titulo),obst=sample(OBST,idx.length),esc=sample(ESC,ESC.length),blocks=[];
+ blocks.push("PREMISSA ("+T0.n+")\n"+fill(pick(T0.gancho))+"\n\nO plano do antagonista: "+low(pick(T0.meta))+".");
+ blocks.push("ELENCO\nProtagonista: "+x.heroi+"\nAntagonista: "+x.vilao+"\nAliado: "+x.aliado+"\nLocais: "+x.local+" e "+x.local2+"\nFacções: "+x.faccao+" e "+x.faccao2+"\nO que está em disputa: "+obj);
+ var acts=idx.map(function(a,i){var at=ATOS[a],body="Objetivo: "+low(at.obj)+".\nCenas:\n"+sample(at.cenas,3).map(function(c,j){return (j+1)+". "+fill(c)}).join("\n")+"\nObstáculo: "+obst[i%obst.length]+".\nEscolha difícil: "+low(esc[i%esc.length])+".";var head="ATO "+(i+1)+" — "+at.n.toUpperCase();blocks.push(head+"\n"+body);return {titulo:title+" · Ato "+(i+1)+": "+at.n,texto:body}});
+ blocks.push("TRAMAS PARALELAS\n"+sample(SUB,3).map(function(s){return "• "+fill(s)}).join("\n"));
+ blocks.push("GRANDE REVELAÇÃO\n"+fill(pick(REV)));
+ blocks.push("FINAIS POSSÍVEIS\n"+sample(FINS,3).map(function(f){return "• "+f[0]+": "+fill(f[1])}).join("\n"));
+ return {txt:title.toUpperCase()+"\n\n"+plain(blocks.join("\n\n")),type:"hist",acts:acts,rec:{titulo:title,oculto:true,desc:blocks.map(function(b){return {t:"txt",v:b,priv:true}})}}}
+GF.enredo=genEnredo;MODES.splice(1,0,["enredo","📚 Enredo longo"]);
+function plotMissions(){var n=0;G.out.forEach(function(o){if(!o.sel||!o.acts)return;o.acts.forEach(function(a,i){create("quest",{titulo:a.titulo,status:i?"Aberta":"Em andamento",desc:[{t:"txt",v:a.texto,priv:true}]});n++})});if(n)save();return n}
+
+/* ========== 36. Barras de progresso ========== */
+function fixBars(l){return (Array.isArray(l)?l:[]).filter(isObj).map(function(b){var m=Math.max(1,Number(b.max)||100);return {id:String(b.id||uid()),nome:String(b.nome||"Progresso"),max:m,val:Math.max(0,Math.min(m,Number(b.val)||0)),xp:!!b.xp,level:Math.max(1,Math.floor(Number(b.level)||1)),log:(Array.isArray(b.log)?b.log:[]).filter(isObj).slice(0,30)}})}
+function moveBar(b,delta,nota){var before=b.val,lv=b.level,v=b.val+delta;
+ if(b.xp){if(v>=b.max){var up=Math.floor(v/b.max);b.level+=up;v-=up*b.max}while(v<0&&b.level>1){b.level--;v+=b.max}v=Math.max(0,v)}else v=Math.max(0,Math.min(b.max,v));
+ b.val=v;if(v===before&&b.level===lv)return false;b.log.unshift({ts:Date.now(),d:delta,nota:nota||"",val:v,level:b.level});b.log=b.log.slice(0,30);return true}
+var BAROPEN={};
+function barsSection(r){var w=h("section",{class:"bars"},h("h3",{text:"📶 Barras de progresso"}));r.bars=fixBars(r.bars);
+ function done(){r._u=Date.now();save();var y=window.scrollY;render();window.scrollTo(0,y)}
+ r.bars.forEach(function(b){var box=h("div",{class:"item pbar"}),pct=Math.round(b.val/b.max*100);
+  box.appendChild(h("div",{class:"mk"},[h("b",{text:b.nome+(b.xp?" · Nível "+b.level:"")}),h("span",{class:"sm",text:b.val+" / "+b.max+" ("+pct+"%)"})]));
+  box.appendChild(h("div",{class:"track",role:"progressbar","aria-label":b.nome,"aria-valuemin":"0","aria-valuemax":String(b.max),"aria-valuenow":String(b.val)},h("i",{style:"width:"+pct+"%"})));
+  var amt=h("input",{type:"number",min:0,value:b.xp?Math.ceil(b.max/10):Math.ceil(b.max/10),"aria-label":"Quanto mudar em "+b.nome,class:"amt"}),why=h("input",{placeholder:"Motivo (opcional)",class:"why"});
+  function go1(s){var v=Math.abs(Number(amt.value)||0);if(!v){toast("Digite um valor.");return}var lv=b.level;if(moveBar(b,s*v,why.value.trim())){if(b.level>lv)toast(nm(r,TK.char)+" subiu para o nível "+b.level+"!");done()}}
+  box.appendChild(h("div",{class:"bar"},[btn("−",function(){go1(-1)}),amt,btn("+",function(){go1(1)},"pri"),why]));
+  var d=h("details",{},h("summary",{text:"Ajustar e ver histórico"}));d.open=!!BAROPEN[b.id];d.ontoggle=function(){BAROPEN[b.id]=d.open};
+  var en=h("input",{value:b.nome,"aria-label":"Nome da barra"}),ev=h("input",{type:"number",value:b.val,"aria-label":"Valor atual"}),em=h("input",{type:"number",value:b.max,"aria-label":"Máximo"}),el=h("input",{type:"number",value:b.level,min:1,"aria-label":"Nível"});
+  [["Nome",en],["Valor atual",ev],["Máximo",em]].concat(b.xp?[["Nível",el]]:[]).forEach(function(p){d.appendChild(h("label",{class:"sm lab"},[p[0],p[1]]))});
+  var del=btn("Excluir barra",function(){if(armed!==b.id){armed=b.id;del.textContent="Confirmar exclusão";return}r.bars=r.bars.filter(function(x){return x.id!==b.id});done()},"dng");
+  d.appendChild(h("div",{class:"row"},[btn("Salvar ajustes",function(){b.nome=en.value.trim()||b.nome;b.max=Math.max(1,Number(em.value)||b.max);b.val=Math.max(0,Math.min(b.max,Number(ev.value)||0));b.level=Math.max(1,Math.floor(Number(el.value)||1));done()}),del]));
+  b.log.forEach(function(l){d.appendChild(h("div",{class:"sm",text:new Date(l.ts).toLocaleDateString("pt-BR")+" · "+(l.d>0?"+":"")+l.d+" → "+l.val+(b.xp?" (nível "+l.level+")":"")+(l.nota?" · "+l.nota:"")}))});
+  box.appendChild(d);w.appendChild(box)});
+ var name=h("input",{placeholder:"Nome (Vida, Mana, Treino, Objetivo…)",class:"newname"}),max=h("input",{type:"number",min:1,value:100,"aria-label":"Máximo da nova barra",class:"newmax"}),kind=sel([["n","Barra comum"],["xp","Experiência (sobe de nível sozinho)"]],"n",function(v){if(v==="xp"&&!name.value)name.value="Experiência"});
+ var add=h("details",{class:"newbar"},[h("summary",{text:"+ Nova barra"}),name,h("label",{class:"sm lab"},["Máximo (ou XP por nível)",max]),kind,h("div",{class:"row"},btn("Criar barra",function(){var x=kind.value==="xp",m=Math.max(1,Number(max.value)||100);r.bars.push({id:uid(),nome:name.value.trim()||(x?"Experiência":"Progresso"),max:m,val:0,xp:x,level:1,log:[]});done()},"pri"))]);w.appendChild(add);return w}
+
+/* ========== 37. Modo sessão ========== */
+var SM={id:""};
+function noteBlock(s){s.desc=s.desc||[];return s.desc.filter(function(b){return b.t==="txt"&&b.notes})[0]}
+VIEWS.live=function(){var w=h("div",{class:"live"}),list0=sorted(TK.session,S.session),s=find("session",SM.id)||list0[list0.length-1];SM.id=s?s.id:"";
+ function newSession(){var n=S.session.reduce(function(a,x){return Math.max(a,Number(x.numero)||0)},0)+1;SM.id=create("session",{titulo:"Sessão "+n,numero:n,data:new Date().toLocaleDateString("pt-BR")}).id;save();render()}
+ var q=panel("Missões");
+ var qn=h("input",{placeholder:"Nova missão…",id:"qnew"});function addQ(){var t=qn.value.trim();if(!t)return;var m=create("quest",{titulo:t,status:"Aberta"});var cur=find("session",SM.id);if(cur){cur.missoes=(cur.missoes||[]).concat(m.id)}save();render()}qn.onkeydown=function(e){if(e.key==="Enter")addQ()};
+ q.appendChild(h("div",{class:"bar"},[qn,btn("Adicionar",addQ,"pri")]));
+ var act=sorted(TK.quest,S.quest).filter(function(m){return m.status!=="Concluída"&&m.status!=="Falhada"}),end=S.quest.filter(function(m){return m.status==="Concluída"||m.status==="Falhada"});
+ function qrow(m){var st=sel(["Aberta","Em andamento","Concluída","Falhada"].map(function(x){return [x,x]}),m.status||"Aberta",function(v){update("quest",m.id,{status:v});var cur=find("session",SM.id);if(cur&&(cur.missoes||[]).indexOf(m.id)<0)cur.missoes=(cur.missoes||[]).concat(m.id);save();render()});st.setAttribute("aria-label","Situação de "+nm(m,TK.quest));return h("div",{class:"item"},[chip("quest",m.id),st])}
+ if(!act.length)q.appendChild(empty("Nenhuma missão ativa."));act.forEach(function(m){q.appendChild(qrow(m))});
+ if(end.length){var d=h("details",{},h("summary",{text:"Encerradas ("+end.length+")"}));end.forEach(function(m){d.appendChild(qrow(m))});q.appendChild(d)}
+ var c=VIEWS.combat();
+ var a=panel("Anotações");
+ if(!s)a.appendChild(h("div",{},[empty("Nenhuma sessão ainda."),btn("Começar a Sessão 1",newSession,"pri")]));
+ else{a.appendChild(h("div",{class:"bar"},[sel(list0.map(function(x){return [x.id,nm(x,TK.session)]}),s.id,function(v){SM.id=v;render()}),btn("+ Nova sessão",newSession),btn("Abrir no diário",function(){openRec("session",s.id)})]));
+  var nb=noteBlock(s),ta=h("textarea",{id:"notes",placeholder:"O que está acontecendo… use [[Nome]] para criar links.","aria-label":"Anotações da sessão"});ta.value=nb?nb.v:"";
+  function keep(){var cur=find("session",s.id);if(!cur)return;var b=noteBlock(cur);if(!b){b={t:"txt",v:"",notes:true};cur.desc.push(b)}b.v=ta.value;cur._u=Date.now();save()}
+  ta.oninput=keep;var help=linkHelper(ta);help.addEventListener("click",keep);a.appendChild(ta);a.appendChild(help);a.appendChild(h("p",{class:"hint",text:"Salva sozinho no Diário de sessões."}))}
+ [[q,35],[c,0],[a,190]].forEach(function(p){themed(p[0],{h:p[1]});w.appendChild(p[0])});return w};
+
+/* ========== 38. Linha do tempo ========== */
+var TLF={who:""};
+VIEWS.timeline=function(){var w=panel("Linha do tempo","Eventos da História em ordem. A posição vem do campo “Ordem cronológica”.");
+ var o=[["","Todos os eventos"]];[["char","pers"],["city","cids"],["nation","nacs"]].forEach(function(p){sorted(TK[p[0]],S[p[0]]).forEach(function(r){if(S.hist.some(function(e){return (e[p[1]]||[]).indexOf(r.id)>-1}))o.push([p[1]+":"+r.id,TK[p[0]].n+": "+nm(r,TK[p[0]])])})});
+ if(!o.some(function(x){return x[0]===TLF.who}))TLF.who="";
+ var next=Math.floor(S.hist.reduce(function(a,e){return Math.max(a,num(e.ordem)||0)},0))+1;
+ w.appendChild(h("div",{class:"bar"},[sel(o,TLF.who,function(v){TLF.who=v;render()}),btn("+ Novo evento",function(){go({t:"hist",mode:"form",id:null,q:"",focus:"",pre:{ordem:next}})},"pri")]));
+ var f=TLF.who.split(":"),l=S.hist.filter(function(e){return !TLF.who||(e[f[0]]||[]).indexOf(f.slice(1).join(":"))>-1});
+ var dated=sorted(TK.hist,l.filter(function(e){return num(e.ordem)!=null})),rest=sorted(TK.hist,l.filter(function(e){return num(e.ordem)==null}));
+ if(!l.length){w.appendChild(empty("Nenhum evento ainda."));return w}
+ function card(e){var u=imgOf(e,TK.hist),text=plain(descOf(e,true)).replace(/\s+/g," "),who=(e.pers||[]).map(function(i){return ["char",i]}).concat((e.cids||[]).map(function(i){return ["city",i]}),(e.nacs||[]).map(function(i){return ["nation",i]}));
+  return h("div",{class:"ev"},[h("button",{type:"button",class:"wl evt",onclick:function(){openRec("hist",e.id)}},nm(e,TK.hist)),u?h("img",{class:"inl",src:u,alt:"",onclick:function(){lightbox(u,nm(e,TK.hist))}}):null,text?h("p",{class:"sm",text:text.length>180?text.slice(0,180)+"…":text}):null,chips(who)])}
+ var line=h("ol",{class:"timeline"});dated.forEach(function(e){line.appendChild(h("li",{},[h("span",{class:"when",text:String(e.ordem)}),card(e)]))});w.appendChild(line);
+ if(rest.length){w.appendChild(h("h3",{text:"Sem ordem definida"}));rest.forEach(function(e){w.appendChild(h("div",{class:"item"},card(e)))})}return w};
+
+/* ========== 39. Criador de encontros ========== */
+var EN={list:[],party:4,city:"",level:"2",scene:""};
+var HPD=[8,15,25,45,80],THREAT=[1,2,4,7,12],DNAMES=["Inofensivo","Baixo","Moderado","Alto","Mortal"];
+var TERR=["num desfiladeiro estreito","entre ruínas cobertas de mato","numa ponte que range","num mercado cheio de gente","num pântano com neblina","numa caverna com pouca luz","numa estrada sob chuva forte"],COMP=["há um inocente no meio do caminho","o chão cede em alguns pontos","reforços podem chegar em poucas rodadas","as criaturas protegem filhotes ou um ninho","um incêndio começa a se espalhar","alguém observa a luta de longe","fugir é possível, mas deixa algo valioso para trás"],ALVO=["sobreviver por algumas rodadas","proteger uma carga","capturar o líder vivo","alcançar a saída","descobrir o que atraiu as criaturas"];
+function danger(b){var n=parseInt(b&&b.perigo,10);return n>=1&&n<=5?n:2}
+function addFoe(name,lv,q,beast){var e=EN.list.filter(function(x){return x.name===name&&x.lv===lv})[0];if(e)e.q=Math.min(30,e.q+q);else EN.list.push({id:uid(),name:name,lv:lv,q:q,hp:HPD[lv-1],beast:beast||""})}
+function threat(){return EN.list.reduce(function(a,x){return a+THREAT[x.lv-1]*x.q},0)}
+function difficulty(){var r=threat()/Math.max(1,EN.party);return r<1?"Fácil":r<2.5?"Médio":r<4.5?"Difícil":"Mortal"}
+function randomEncounter(){var target=[0.7,1.7,3.4,5.5][Number(EN.level)-1]*EN.party,pool=S.beast.filter(function(b){return !EN.city||(b.cidades||[]).indexOf(EN.city)>-1});if(!pool.length)return false;EN.list=[];var guard=0;
+ while(threat()<target&&guard++<60){var fit=pool.filter(function(b){return THREAT[danger(b)-1]<=Math.max(1,(target-threat())*1.3)});if(!fit.length){if(EN.list.length)break;fit=[pool.slice().sort(function(a,b){return danger(a)-danger(b)})[0]]}var b=pick(fit);addFoe(nm(b,TK.beast),danger(b),1,b.id)}return true}
+function sendCombat(){var C=S._combat,n=0;EN.list.forEach(function(f){for(var i=0;i<f.q;i++){var name=f.name,k=2;while(C.list.some(function(x){return x.name===name}))name=f.name+" "+k++;C.list.push({id:uid(),name:name,charId:"",ini:rnd(20),hp:f.hp,max:f.hp,cond:""});n++}});sortCombat();save();return n}
+VIEWS.encounter=function(){var w=panel("Criador de encontros","Monte a luta com o seu bestiário e envie para o combate. A dificuldade é uma estimativa: ajuste ao seu sistema.");
+ var party=h("input",{type:"number",min:1,max:20,value:EN.party,id:"party",onchange:function(){EN.party=Math.max(1,Math.min(20,Math.floor(Number(this.value)||4)));render()}});
+ w.appendChild(h("label",{class:"sm lab"},["Quantos personagens no grupo",party]));
+ if(!find("city",EN.city))EN.city="";
+ w.appendChild(h("h3",{text:"Sortear"}));w.appendChild(h("div",{class:"bar"},[sel([["1","Fácil"],["2","Médio"],["3","Difícil"],["4","Mortal"]],EN.level,function(v){EN.level=v}),sel(opts("city","Qualquer lugar"),EN.city,function(v){EN.city=v}),btn("🎲 Sortear encontro",function(){if(!randomEncounter()){toast(S.beast.length?"Nenhuma criatura nesse lugar.":"Cadastre criaturas no Bestiário primeiro.");return}EN.scene=scene();render()},"pri")]));
+ w.appendChild(h("h3",{text:"Adicionar à mão"}));
+ var bs=sel(opts("beast","Criatura avulsa (digite abaixo)"),""),nn=h("input",{placeholder:"Nome da criatura avulsa",id:"foename"}),lv=sel(DNAMES.map(function(d,i){return [String(i+1),"Perigo: "+d]}),"2"),qt=h("input",{type:"number",min:1,max:30,value:1,"aria-label":"Quantidade",id:"foeqty"});
+ w.appendChild(h("div",{class:"bar"},[bs,nn,lv,qt,btn("Adicionar",function(){var b=find("beast",bs.value),name=b?nm(b,TK.beast):nn.value.trim();if(!name){toast("Escolha ou digite uma criatura.");return}addFoe(name,b?danger(b):Number(lv.value),Math.max(1,Math.min(30,Math.floor(Number(qt.value)||1))),b?b.id:"");render()})]));
+ if(!EN.list.length){w.appendChild(empty("Nenhuma criatura no encontro."));return w}
+ w.appendChild(h("p",{class:"diff",role:"status"},["Dificuldade: ",h("b",{text:difficulty()})]));
+ EN.list.forEach(function(f){var q=h("input",{type:"number",min:1,max:30,value:f.q,"aria-label":"Quantidade de "+f.name,onchange:function(){f.q=Math.max(1,Math.min(30,Math.floor(Number(this.value)||1)));render()}}),hp=h("input",{type:"number",min:1,value:f.hp,"aria-label":"Vida de "+f.name,onchange:function(){f.hp=Math.max(1,Number(this.value)||1);render()}});
+  w.appendChild(h("div",{class:"item"},[h("div",{class:"mk"},[f.beast&&find("beast",f.beast)?chip("beast",f.beast):h("b",{text:f.name}),h("span",{class:"sm",text:DNAMES[f.lv-1]})]),h("div",{class:"bar"},[h("label",{class:"sm lab"},["Quantidade",q]),h("label",{class:"sm lab"},["Vida de cada",hp]),btn("Tirar",function(){EN.list=EN.list.filter(function(x){return x!==f});render()},"dng")])]))});
+ if(EN.scene)w.appendChild(h("div",{class:"item"},h("p",{class:"tx",text:EN.scene})));
+ w.appendChild(h("div",{class:"row"},[btn("⚔ Enviar para o combate",function(){var n=sendCombat();EN.list=[];EN.scene="";tool("live");toast(n+" criatura(s) no combate.")},"pri"),btn("Sortear cenário",function(){EN.scene=scene();render()}),btn("Limpar",function(){EN.list=[];EN.scene="";render()})]));return w};
+function scene(){return "Cenário: "+cap(pick(TERR))+".\nComplicação: "+pick(COMP)+".\nObjetivo possível: "+pick(ALVO)+"."}
 window.ready=boot();
 </script></body></html>
